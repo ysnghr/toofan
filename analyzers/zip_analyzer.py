@@ -21,6 +21,7 @@ class ZipAnalyzer(FileAnalyzer):
     """
     def __init__(self, file_type):
         self.file_type = file_type
+        # TODO: Transfer this argument to analyze method
 
     def analyze(self, file):
         """
