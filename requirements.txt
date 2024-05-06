@@ -2,4 +2,7 @@ python-magic==0.4.27
 python-magic-bin==0.4.14
 rarfile==4.2
 py7zr==0.21.0
-
+PyPDF2==3.0.1
+PyMuPDF==1.24.2
+tika==2.6.0
+tldextract==5.1.2
