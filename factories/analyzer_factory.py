@@ -27,5 +27,5 @@ class AnalyzerFactory:
         if file_type == 'PDF':
             return PDFAnalyzer()
         if file_type == 'ZIP':
-            return ZipAnalyzer()
+            return ZipAnalyzer(file_type)
         return GeneralAnalyzer()
