@@ -22,8 +22,11 @@ class VirusTotalAnalyzer:
                 - 'maliciousness_score' (float): The ratio of malicious detections to total detections.
                 - 'malicious_vendors' (list): A list of vendors that flagged the file as malicious.
         """
-        vt_response = self.get_vt_report(calculate_file_hash(file_path), file_path)
-        results = vt_response['data']['attributes']['last_analysis_results']
+        vt_response, is_generated = self.get_vt_report(calculate_file_hash(file_path), file_path)
+        key = 'last_analysis_results'
+        if is_generated:
+            key = 'results'
+        results = vt_response['data']['attributes'][key]
         total_vendors = len(results)
         malicious_count = sum(1 for result in results.values() if result['category'] == 'malicious')
         malicious_vendors = [name for name, detail in results.items() if detail['category'] == 'malicious']
@@ -47,8 +50,8 @@ class VirusTotalAnalyzer:
         url = f"https://www.virustotal.com/api/v3/files/{file_hash}"
         response = requests.get(url, headers=headers)
         if response.status_code == 404:
-            return self.submit_file(file_path)
-        return response.json()
+            return self.submit_file(file_path), True
+        return response.json(), False
 
     def submit_file(self, file_path):
         """
