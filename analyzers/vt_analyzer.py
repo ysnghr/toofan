@@ -27,7 +27,7 @@ class VirusTotalAnalyzer:
         if is_generated:
             key = 'results'
         results = vt_response['data']['attributes'][key]
-        total_vendors = len(results)
+        total_vendors = len(results) if results else 1
         malicious_count = sum(1 for result in results.values() if result['category'] == 'malicious')
         malicious_vendors = [name for name, detail in results.items() if detail['category'] == 'malicious']
         return {
