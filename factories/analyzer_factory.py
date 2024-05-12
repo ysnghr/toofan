@@ -2,9 +2,7 @@
 """
 This module provides a factory class for creating file analyzers based on the file type.
 """
-from analyzers.pdf_analyzer import PDFAnalyzer
-from analyzers.zip_analyzer import ZipAnalyzer
-from analyzers.general_analyzer import GeneralAnalyzer
+from analyzers import PDFAnalyzer, ZipAnalyzer, GeneralAnalyzer, OfficeAnalyzer
 
 
 class AnalyzerFactory:
@@ -24,8 +22,10 @@ class AnalyzerFactory:
         Returns:
             FileAnalyzer: An instance of the appropriate file analyzer subclass.
         """
-        if file_type == 'PDF':
+        if file_type in ['DOC', 'DOCX']:
+            return OfficeAnalyzer()
+        elif file_type == 'PDF':
             return PDFAnalyzer()
-        if file_type == 'ZIP':
+        elif file_type == 'ZIP':
             return ZipAnalyzer(file_type)
         return GeneralAnalyzer()
