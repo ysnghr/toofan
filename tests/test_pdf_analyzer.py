@@ -107,7 +107,7 @@ class TestPDFAnalyzer:
         with patch('analyzers.vt_analyzer.VirusTotalAnalyzer.analyze_vt_report') as mock_analyze_vt:
             mock_analyze_vt.return_value = {}
 
-            result = analyzer.analyze(file_path)
+            result = analyzer.analyze(file_path, 'pdf')
 
             assert result['password_protected'] == expected_results['password_protected'], \
                 f"Password protection failed for {file_name}"

@@ -20,12 +20,13 @@ class PEAnalyzer(FileAnalyzer, VirusTotalAnalyzer, DataExtractor):
         self.pe = None
         self.strings = None
 
-    def analyze(self, file):
+    def analyze(self, file, file_type):
         self.file_path = file
         self.pe = pefile.PE(file)
         self.strings = self.extract_strings()
         vt_results = self.analyze_vt_report(file)
         results = {
+            "File True Type": file_type,
             "Architecture": self.get_architecture(),
             "General Entropy": self.get_general_entropy(),
             "File Size": self.get_file_size(),

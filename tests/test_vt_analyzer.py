@@ -12,14 +12,14 @@ class TestVirusTotalAnalyzer:
     @mock.patch('requests.get')
     def test_get_vt_report_found(self, mock_get):
         mock_response = mock.Mock()
-        mock_response.json.return_value = {'data': {'attributes': {'status': 'completed'}}}
+        mock_response.json.return_value = {'data': {'attributes': {'status': 'completed'}}}, False
         mock_response.status_code = 200
         mock_get.return_value = mock_response
 
         file_hash = 'dummyhash'
         result = self.analyzer.get_vt_report(file_hash, file_path='dummypath')
 
-        assert result == mock_response.json.return_value
+        assert result[0] == mock_response.json.return_value
         mock_get.assert_called_once()
 
     @mock.patch('requests.get')
@@ -45,7 +45,7 @@ class TestVirusTotalAnalyzer:
             file_path = 'tests/resources/pe-files/neolite_arh.exe'
             result = self.analyzer.get_vt_report(file_hash, file_path)
 
-            assert result['data']['attributes']['status'] == 'completed'
+            assert result[0]['data']['attributes']['status'] == 'completed'
             mock_get.assert_has_calls([
                 mock.call('https://www.virustotal.com/api/v3/files/dummyhash', headers={'X-Apikey': self.analyzer.VT_API_KEY}),
                 mock.call('analysis_url', headers={'X-Apikey': self.analyzer.VT_API_KEY})

@@ -82,8 +82,21 @@ class VirusTotalAnalyzer:
             dict: The final analysis results from VirusTotal.
         """
         headers = {"X-Apikey": self.VT_API_KEY}
+        max_retries = 3
+        retries = 0
+
         while True:
-            response = requests.get(analysis_url, headers=headers)
-            if response.json()['data']['attributes']['status'] == 'completed':
-                return response.json()
-            time.sleep(10)  # Sleep for 10 seconds before polling again
+            try:
+                response = requests.get(analysis_url, headers=headers)
+                response.raise_for_status()  # Raise an exception for HTTP errors
+
+                if response.json()['data']['attributes']['status'] == 'completed':
+                    return response.json()
+
+                time.sleep(10)
+            except requests.ConnectionError:
+                retries += 1
+                if retries >= max_retries:
+                    raise Exception
+                print("ConnectionError occurred. Retrying...")
+                time.sleep(5)

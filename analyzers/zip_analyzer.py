@@ -24,7 +24,7 @@ class ZipAnalyzer(VirusTotalAnalyzer, FileAnalyzer):
         self.file_type = file_type
         # TODO: Transfer this argument to analyze method
 
-    def analyze(self, file):
+    def analyze(self, file, file_type):
         """
         Analyze the given compressed file.
 
@@ -33,18 +33,21 @@ class ZipAnalyzer(VirusTotalAnalyzer, FileAnalyzer):
 
         Args:
             file (str): The path to the compressed file to be analyzed.
+            file_type (str): The type of the compressed file
 
         Returns:
             dict: A dictionary containing information about the compressed file,
                   including its type and encryption status.
         """
         vt_results = self.analyze_vt_report(file)
-        results = {}
-        if self.file_type == 'zip':
+        results = {
+            'file_true_type': self.file_type
+        }
+        if 'zip' in self.file_type:
             results = self._check_zip_encryption(file)
-        elif self.file_type == 'x-rar':
+        elif 'x-rar' in self.file_type:
             results = self._check_rar_encryption(file)
-        elif self.file_type == 'x-7z-compressed':
+        elif 'x-7z-compressed' in self.file_type:
             results = self._check_7z_encryption(file)
         results.update(vt_results)
         return results

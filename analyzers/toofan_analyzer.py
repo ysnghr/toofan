@@ -27,6 +27,6 @@ class TooFanAnalyzer:
         for file in files:
             file_type = self.file_manager.identify_file_type(file)
             analyzer = self.analyzer_factory.get_analyzer(file_type)
-            result = analyzer.analyze(file)
+            result = analyzer.analyze(file, file_type)
             results.append(result)
         return results

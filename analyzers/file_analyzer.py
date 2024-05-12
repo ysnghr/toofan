@@ -11,12 +11,13 @@ class FileAnalyzer(ABC):
     implement the `analyze` method to perform specific analysis on the file.
     """
     @abstractmethod
-    def analyze(self, file):
+    def analyze(self, file, file_type):
         """
         Analyze the given file.
 
         Args:
             file (str): The path to the file to be analyzed.
+            file_type (str): The type of file to be analyzed
 
         Raises:
             NotImplementedError: If the method is not implemented in subclasses.

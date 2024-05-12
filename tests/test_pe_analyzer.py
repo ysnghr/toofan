@@ -311,7 +311,7 @@ class TestPEAnalyzer:
         with patch('analyzers.vt_analyzer.VirusTotalAnalyzer.analyze_vt_report') as mock_analyze_vt:
             mock_analyze_vt.return_value = {}
 
-            result = analyzer.analyze(file_path)
+            result = analyzer.analyze(file_path, 'pe')
             assert result['Packing status'] == expected_results[
                 'Packing status'], f"Packing status check failed for {file_path}"
             assert result['Packers'] == expected_results['Packers'], f"Packer detection failed for {file_path}"

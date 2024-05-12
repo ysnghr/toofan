@@ -40,5 +40,5 @@ class TestZipAnalyzer:
         analyzer = ZipAnalyzer(file_type)
         with patch('analyzers.vt_analyzer.VirusTotalAnalyzer.analyze_vt_report') as mock_analyze_vt:
             mock_analyze_vt.return_value = {}
-            result = analyzer.analyze(file_path)
+            result = analyzer.analyze(file_path, file_type)
             assert result["password_protected"] == expected_result, f"Failed for {file_name}"

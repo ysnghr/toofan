@@ -11,9 +11,10 @@ class OfficeAnalyzer(FileAnalyzer, VirusTotalAnalyzer):
     """
     Class for analyzing Office files.
     """
-    def analyze(self, file):
+    def analyze(self, file, file_type):
         vt_results = self.analyze_vt_report(file)
         result = {
+            "file_true_type": file_type,
             "language_code": self._get_language_code(file),
             "page_count": self._get_page_count(file),
             "encrypted": self._is_encrypted(file),

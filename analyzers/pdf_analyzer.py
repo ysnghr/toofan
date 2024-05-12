@@ -10,13 +10,13 @@ class PDFAnalyzer(FileAnalyzer, VirusTotalAnalyzer, DataExtractor):
     """
     Class for analyzing PDF files.
     """
-    def analyze(self, file_path):
+    def analyze(self, file_path, file_type):
         """
         Analyze the given PDF file.
         """
         vt_results = self.analyze_vt_report(file_path)
         result = {
-            "file_type": "PDF",
+            "file_true_type": file_type,
             "password_protected": False,
             "urls": [],
             "ips": [],
