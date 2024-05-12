@@ -4,6 +4,7 @@ This module contains tests for the PEAnalyzer class.
 import pytest
 from file_management.file_manager import FileManager
 from analyzers.pe_analyzer import PEAnalyzer
+from unittest.mock import patch
 
 
 class TestPEAnalyzer:
@@ -306,18 +307,21 @@ class TestPEAnalyzer:
                                      packer used, architecture, lists of DLLs, URLs, IPs, and domain names.
         """
         file_path = f"tests/resources/pe-files/{file_path}"
-        analyzer = PEAnalyzer(file_path)
-        result = analyzer.analyze()
-        assert result['Packing status'] == expected_results[
-            'Packing status'], f"Packing status check failed for {file_path}"
-        assert result['Packers'] == expected_results['Packers'], f"Packer detection failed for {file_path}"
-        assert result['Architecture'] == expected_results[
-            'Architecture'], f"Architecture detection failed for {file_path}"
-        assert all(dll in expected_results['Called DLLs'] for dll in
-                   result['Called DLLs']), f"Some DLLs were not extracted correctly for {file_path}"
-        assert all(url in expected_results['URLs'] for url in
-                   result['URLs']), f"Some URLs were not extracted correctly for {file_path}"
-        assert all(ip in expected_results['IP addresses'] for ip in
-                   result['IP addresses']), f"Some IPs were not extracted correctly for {file_path}"
-        assert all(domain in expected_results['Domain names'] for domain in
-                   result['Domain names']), f"Some domain names were not extracted correctly for {file_path}"
+        analyzer = PEAnalyzer()
+        with patch('analyzers.vt_analyzer.VirusTotalAnalyzer.analyze_vt_report') as mock_analyze_vt:
+            mock_analyze_vt.return_value = {}
+
+            result = analyzer.analyze(file_path)
+            assert result['Packing status'] == expected_results[
+                'Packing status'], f"Packing status check failed for {file_path}"
+            assert result['Packers'] == expected_results['Packers'], f"Packer detection failed for {file_path}"
+            assert result['Architecture'] == expected_results[
+                'Architecture'], f"Architecture detection failed for {file_path}"
+            assert all(dll in expected_results['Called DLLs'] for dll in
+                       result['Called DLLs']), f"Some DLLs were not extracted correctly for {file_path}"
+            assert all(url in expected_results['URLs'] for url in
+                       result['URLs']), f"Some URLs were not extracted correctly for {file_path}"
+            assert all(ip in expected_results['IP addresses'] for ip in
+                       result['IP addresses']), f"Some IPs were not extracted correctly for {file_path}"
+            assert all(domain in expected_results['Domain names'] for domain in
+                       result['Domain names']), f"Some domain names were not extracted correctly for {file_path}"

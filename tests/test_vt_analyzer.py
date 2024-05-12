@@ -1,6 +1,6 @@
 import unittest.mock as mock
 import pytest
-from analyzers import VirusTotalAnalyzer
+from analyzers.vt_analyzer import VirusTotalAnalyzer
 
 
 class TestVirusTotalAnalyzer:
@@ -47,8 +47,8 @@ class TestVirusTotalAnalyzer:
 
             assert result['data']['attributes']['status'] == 'completed'
             mock_get.assert_has_calls([
-                mock.call('https://www.virustotal.com/api/v3/files/dummyhash', headers={'x-apikey': self.analyzer.VT_API_KEY}),
-                mock.call('analysis_url', headers={'x-apikey': self.analyzer.VT_API_KEY})
+                mock.call('https://www.virustotal.com/api/v3/files/dummyhash', headers={'X-Apikey': self.analyzer.VT_API_KEY}),
+                mock.call('analysis_url', headers={'X-Apikey': self.analyzer.VT_API_KEY})
             ])
 
     @mock.patch('requests.post')
@@ -70,7 +70,7 @@ class TestVirusTotalAnalyzer:
         assert 'data' in result
         mock_post.assert_called_once_with(
             "https://www.virustotal.com/api/v3/files",
-            headers={"x-apikey": self.analyzer.VT_API_KEY},
+            headers={"X-Apikey": self.analyzer.VT_API_KEY},
             files={'file': mock.ANY}
         )
-        mock_get.assert_called_with('analysis_url', headers={"x-apikey": self.analyzer.VT_API_KEY})
+        mock_get.assert_called_with('analysis_url', headers={"X-Apikey": self.analyzer.VT_API_KEY})

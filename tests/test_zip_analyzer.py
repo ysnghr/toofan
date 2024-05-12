@@ -4,6 +4,7 @@ This module contains tests for the ZipAnalyzer class.
 import pytest
 from file_management.file_manager import FileManager
 from analyzers.zip_analyzer import ZipAnalyzer
+from unittest.mock import patch
 
 
 class TestZipAnalyzer:
@@ -37,5 +38,7 @@ class TestZipAnalyzer:
         file_path = f"tests/resources/compressed-files/{file_name}"
         file_type = file_manager.identify_file_type(file_path).split('/')[1]
         analyzer = ZipAnalyzer(file_type)
-        result = analyzer.analyze(file_path)
-        assert result["password_protected"] == expected_result, f"Failed for {file_name}"
+        with patch('analyzers.vt_analyzer.VirusTotalAnalyzer.analyze_vt_report') as mock_analyze_vt:
+            mock_analyze_vt.return_value = {}
+            result = analyzer.analyze(file_path)
+            assert result["password_protected"] == expected_result, f"Failed for {file_name}"

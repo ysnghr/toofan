@@ -4,6 +4,8 @@ This module contains tests for the OfficeAnalyzer class.
 import pytest
 from file_management.file_manager import FileManager
 from analyzers.office_analyzer import OfficeAnalyzer
+from unittest.mock import patch
+
 
 class TestOfficeAnalyzer:
     """Test class for the OfficeAnalyzer class."""
@@ -36,8 +38,11 @@ class TestOfficeAnalyzer:
         """
         file_path = f"tests/resources/office-files/{file_name}"
         analyzer = OfficeAnalyzer()
-        result = analyzer.analyze(file_path)
-        assert result["language_code"] == expected_language, f"Language mismatch for {file_name}"
-        assert result["page_count"] == expected_pages, f"Page count mismatch for {file_name}"
-        assert result["encrypted"] == expected_encrypted, f"Encryption status mismatch for {file_name}"
-        assert result["macros"] == expected_macros, f"Macro status mismatch for {file_name}"
+        with patch('analyzers.vt_analyzer.VirusTotalAnalyzer.analyze_vt_report') as mock_analyze_vt:
+            mock_analyze_vt.return_value = {}
+
+            result = analyzer.analyze(file_path)
+            assert result["language_code"] == expected_language, f"Language mismatch for {file_name}"
+            assert result["page_count"] == expected_pages, f"Page count mismatch for {file_name}"
+            assert result["encrypted"] == expected_encrypted, f"Encryption status mismatch for {file_name}"
+            assert result["macros"] == expected_macros, f"Macro status mismatch for {file_name}"

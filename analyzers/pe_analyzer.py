@@ -1,23 +1,46 @@
 import pefile
 import yara
 import json
-from analyzers.file_analyzer import FileAnalyzer
+from analyzers import FileAnalyzer
+from analyzers.vt_analyzer import VirusTotalAnalyzer
 from utils import DataExtractor, calculate_entropy
 import datetime
 import re
 import os
 
 
-class PEAnalyzer(FileAnalyzer, DataExtractor):
-    def __init__(self, file_path):
+class PEAnalyzer(FileAnalyzer, VirusTotalAnalyzer, DataExtractor):
+    def __init__(self):
         super().__init__()
         self.packer_rules = yara.compile('packing-rules/packer.yar')
         self.crypto_rules = yara.compile('packing-rules/crypto.yar')
         self.peid_rules = yara.compile('packing-rules/peid.yar')
         self.packers_sections = json.load(open('packing-rules/packer-sections.json', 'r'))
-        self.file_path = file_path
-        self.pe = pefile.PE(file_path)
+        self.file_path = None
+        self.pe = None
+        self.strings = None
+
+    def analyze(self, file):
+        self.file_path = file
+        self.pe = pefile.PE(file)
         self.strings = self.extract_strings()
+        vt_results = self.analyze_vt_report(file)
+        results = {
+            "Architecture": self.get_architecture(),
+            "General Entropy": self.get_general_entropy(),
+            "File Size": self.get_file_size(),
+            "Sections Info": self.get_sections_info(),
+            "Compilation Date": self.get_compilation_date(),
+            "Called DLLs": self.get_called_dlls(),
+            "URLs": list(self.extract_urls(self.strings)),
+            "Domain names": list(self.extract_domains(self.strings)),
+            "IP addresses": list(self.extract_ips(self.strings)),
+            "Packing status": "Packed" if self.identify_packers() else "Not Packed",
+            "Packers": self.identify_packers(),
+            "Cryptors": self.identify_cryptors()
+        }
+        results.update(vt_results)
+        return results
 
     def extract_strings(self):
         strings = []
@@ -104,19 +127,3 @@ class PEAnalyzer(FileAnalyzer, DataExtractor):
     def identify_cryptors(self):
         matches = self.yara_matches(self.crypto_rules)
         return matches
-
-    def analyze(self):
-        return {
-            "Architecture": self.get_architecture(),
-            "General Entropy": self.get_general_entropy(),
-            "File Size": self.get_file_size(),
-            "Sections Info": self.get_sections_info(),
-            "Compilation Date": self.get_compilation_date(),
-            "Called DLLs": self.get_called_dlls(),
-            "URLs": list(self.extract_urls(self.strings)),
-            "Domain names": list(self.extract_domains(self.strings)),
-            "IP addresses": list(self.extract_ips(self.strings)),
-            "Packing status": "Packed" if self.identify_packers() else "Not Packed",
-            "Packers": self.identify_packers(),
-            "Cryptors": self.identify_cryptors()
-        }

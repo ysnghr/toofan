@@ -4,6 +4,7 @@ This module contains tests for the PDFAnalyzer class.
 import pytest
 from file_management.file_manager import FileManager
 from analyzers.pdf_analyzer import PDFAnalyzer
+from unittest.mock import patch
 
 
 class TestPDFAnalyzer:
@@ -99,22 +100,20 @@ class TestPDFAnalyzer:
 
         This test verifies that the PDFAnalyzer correctly identifies if a PDF is password protected
         and correctly extracts URLs, IP addresses, and domain names from the PDF content.
-
-        Args:
-            file_manager (FileManager): An instance of the FileManager class.
-            file_name (str): The name of the PDF file to test.
-            expected_results (dict): The expected results of the PDF analysis, including
-                                     whether it's password protected and lists of URLs, IPs,
-                                     and domain names extracted.
         """
         file_path = f"tests/resources/pdf-files/{file_name}"
         analyzer = PDFAnalyzer()
-        result = analyzer.analyze(file_path)
-        assert result['password_protected'] == expected_results[
-            'password_protected'], f"Password protection failed for {file_name}"
-        assert all(url in expected_results['urls'] for url in
-                   result['urls']), f"Some URLs were not extracted correctly for {file_name}"
-        assert all(ip in expected_results['ips'] for ip in
-                   result['ips']), f"Some IPs were not extracted correctly for {file_name}"
-        assert all(domain in expected_results['domain_names'] for domain in
-                   result['domain_names']), f"Some domain names were not extracted correctly for {file_name}"
+
+        with patch('analyzers.vt_analyzer.VirusTotalAnalyzer.analyze_vt_report') as mock_analyze_vt:
+            mock_analyze_vt.return_value = {}
+
+            result = analyzer.analyze(file_path)
+
+            assert result['password_protected'] == expected_results['password_protected'], \
+                f"Password protection failed for {file_name}"
+            assert all(url in expected_results['urls'] for url in result['urls']), \
+                f"Some URLs were not extracted correctly for {file_name}"
+            assert all(ip in expected_results['ips'] for ip in result['ips']), \
+                f"Some IPs were not extracted correctly for {file_name}"
+            assert all(domain in expected_results['domain_names'] for domain in result['domain_names']), \
+                f"Some domain names were not extracted correctly for {file_name}"

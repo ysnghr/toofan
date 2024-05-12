@@ -6,10 +6,11 @@ import zipfile
 import rarfile
 import py7zr
 
-from analyzers.file_analyzer import FileAnalyzer
+from analyzers import FileAnalyzer
+from analyzers.vt_analyzer import VirusTotalAnalyzer
 
 
-class ZipAnalyzer(FileAnalyzer):
+class ZipAnalyzer(VirusTotalAnalyzer, FileAnalyzer):
     """
     Class for analyzing compressed files (ZIP, RAR, 7Z).
 
@@ -37,13 +38,16 @@ class ZipAnalyzer(FileAnalyzer):
             dict: A dictionary containing information about the compressed file,
                   including its type and encryption status.
         """
+        vt_results = self.analyze_vt_report(file)
+        results = {}
         if self.file_type == 'zip':
-            return self._check_zip_encryption(file)
-        if self.file_type == 'x-rar':
-            return self._check_rar_encryption(file)
-        if self.file_type == 'x-7z-compressed':
-            return self._check_7z_encryption(file)
-        return {"file_type": self.file_type, "password_protected": None}
+            results = self._check_zip_encryption(file)
+        elif self.file_type == 'x-rar':
+            results = self._check_rar_encryption(file)
+        elif self.file_type == 'x-7z-compressed':
+            results = self._check_7z_encryption(file)
+        results.update(vt_results)
+        return results
 
     def _check_zip_encryption(self, file_path):
         """

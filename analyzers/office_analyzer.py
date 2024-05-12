@@ -4,19 +4,23 @@ import msoffcrypto
 from oletools.olevba import VBA_Parser
 from langdetect import detect
 
+from analyzers.vt_analyzer import VirusTotalAnalyzer
 
-class OfficeAnalyzer(FileAnalyzer):
+
+class OfficeAnalyzer(FileAnalyzer, VirusTotalAnalyzer):
     """
     Class for analyzing Office files.
     """
     def analyze(self, file):
-        info = {
+        vt_results = self.analyze_vt_report(file)
+        result = {
             "language_code": self._get_language_code(file),
             "page_count": self._get_page_count(file),
             "encrypted": self._is_encrypted(file),
             "macros": self._has_macros(file),
         }
-        return info
+        result.update(vt_results)
+        return result
 
     def _get_language_code(self, file):
         try:

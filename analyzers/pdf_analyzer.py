@@ -1,11 +1,12 @@
-from analyzers.file_analyzer import FileAnalyzer
+from analyzers.vt_analyzer import VirusTotalAnalyzer
+from analyzers import FileAnalyzer
 import PyPDF2
 import fitz  # PyMuPDF
 from tika import parser as tika_parser
 from utils import DataExtractor
 
 
-class PDFAnalyzer(FileAnalyzer, DataExtractor):
+class PDFAnalyzer(FileAnalyzer, VirusTotalAnalyzer, DataExtractor):
     """
     Class for analyzing PDF files.
     """
@@ -13,45 +14,46 @@ class PDFAnalyzer(FileAnalyzer, DataExtractor):
         """
         Analyze the given PDF file.
         """
-        analysis_result = {
+        vt_results = self.analyze_vt_report(file_path)
+        result = {
             "file_type": "PDF",
             "password_protected": False,
             "urls": [],
             "ips": [],
             "domain_names": []
         }
-
+        result.update(vt_results)
         with open(file_path, 'rb') as file:
             pdf_reader = PyPDF2.PdfReader(file)
             if pdf_reader.is_encrypted:
                 try:
                     pdf_reader.decrypt('')
-                    analysis_result["password_protected"] = True
+                    result["password_protected"] = True
                 except Exception:
-                    analysis_result["password_protected"] = True
-                return analysis_result
+                    result["password_protected"] = True
+                return result
 
             for page in pdf_reader.pages:
                 if "/Annots" in page:
                     annotations = page["/Annots"]
                     urls = self.extract_urls_from_annotations(annotations)
-                    analysis_result["urls"].extend(urls)
+                    result["urls"].extend(urls)
 
         text_mupdf = self.extract_text_mupdf(file_path)
         text_tika = self.extract_text_tika(file_path)
 
         combined_text = text_mupdf + text_tika
-        analysis_result["ips"].extend(self.extract_ips(combined_text))
-        analysis_result["ips"] = list(set(analysis_result["ips"]))
-        analysis_result["domain_names"].extend(self.extract_domains(combined_text))
-        analysis_result["domain_names"] = list(set(analysis_result["domain_names"]))
+        result["ips"].extend(self.extract_ips(combined_text))
+        result["ips"] = list(set(result["ips"]))
+        result["domain_names"].extend(self.extract_domains(combined_text))
+        result["domain_names"] = list(set(result["domain_names"]))
 
         text_urls = self.extract_urls(combined_text)
         validated_urls = [url for url in text_urls if self.is_valid_url(url)]
-        unique_urls = list(set(analysis_result["urls"] + [url for url in validated_urls if url not in analysis_result["urls"]]))
-        analysis_result["urls"] = unique_urls
+        unique_urls = list(set(result["urls"] + [url for url in validated_urls if url not in result["urls"]]))
+        result["urls"] = unique_urls
 
-        return analysis_result
+        return result
 
     def extract_text_mupdf(self, file_path):
         """
