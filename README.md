@@ -26,7 +26,7 @@ pip install -r requirements.txt
 To perform an analysis on a file, you can use the following command syntax:
 
 ```
-python main.py analyze --file [file_path] --output [output_path] --html|--csv|--json
+python main.py --file [file_path] --output [output_path] --html|--csv|--json
 ```
 * [file_path] is the path to the file you want to analyze.
 * [output_path] is the path where the report will be saved.
@@ -36,18 +36,18 @@ python main.py analyze --file [file_path] --output [output_path] --html|--csv|--
 Analyze a file and export the results as an HTML report:
 
 ```
-python main.py analyze --file example.pdf --output report.html --html
+python main.py --file example.pdf --output report.html --html
 ```
 Export the results as a CSV file:
 
 
 ```
-python main.py analyze --file example.zip --output report.csv --csv
+python main.py --file example.zip --output report.csv --csv
 ```
 Generate a JSON report:
 
 ```
-python main.py analyze --file example.docx --output result.json --json
+python main.py --file example.docx --output result.json --json
 ```
 
 ## Features
